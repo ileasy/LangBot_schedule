@@ -18,7 +18,7 @@ class MyPlugin(BasePlugin):
     @handler(PersonNormalMessageReceived)
     async def person_normal_message_received(self, ctx: EventContext):
         current_time = datetime.datetime.now().time()
-        if current_time.hour == 16 and current_time.minute == 0:  # 如果时间为每天下午16点
+        if current_time.hour == 15 and current_time.minute == 3:  # 如果时间为每天下午16点
 
             # 输出调试信息
             self.ap.logger.debug("hello, {}".format(ctx.event.sender_id))
