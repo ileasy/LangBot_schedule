@@ -1,56 +1,70 @@
 from pkg.plugin.context import register, handler, llm_func, BasePlugin, APIHost, EventContext
-from pkg.plugin.events import *  # 导入事件类
-from datetime import datetime 
+from pkg.plugin.events import *
+from datetime import datetime
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import pytz
+
+# 配置项（需要根据实际情况修改）
+TARGET_USER = "kif00pjoz5gw22"    # 要通知的个人账号
+TARGET_GROUP = "52326925588@chatroom"       # 要通知的群聊
+NOTIFY_TIME = "07:46"             # 每天通知时间（24小时制）
+TIME_ZONE = "Asia/Shanghai"       # 时区
 
 # 注册插件
-@register(name="Hello", description="hello world", version="0.1", author="RockChinQ")
-class MyPlugin(BasePlugin):
+@register(name="DailyNotifier", 
+         description="每日定时通知插件", 
+         version="1.1",
+         author="iLeasy")
+class DailyNotifierPlugin(BasePlugin):
 
-    # 插件加载时触发
     def __init__(self, host: APIHost):
-        pass
-
-    # 异步初始化
+        # 初始化调度器
+        self.scheduler = AsyncIOScheduler(timezone=TIME_ZONE)
+        
     async def initialize(self):
-        pass
-
-    # 当收到个人消息时触发
-    @handler(PersonNormalMessageReceived)
-    async def person_normal_message_received(self, ctx: EventContext):
-        current_time = datetime.now().strftime("%H:%M")
-        msg = ctx.event.text_message  # 这里的 event 即为 PersonNormalMessageReceived 的对象
-        #if msg == "hello":  # 如果消息为hello
-        if current_time == "07:35":
-            self.ap.logger.debug("定时通知触发")
-            ctx.add_return("reply", [f"早上好！现在是北京时间 {current_time}，该起床啦！🌞"])
-            # 获取当前时间并格式化为字符串
-            #current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-            # 输出调试信息
-            self.ap.logger.debug("hello, {}".format(ctx.event.sender_id))
-
-            # 回复消息 "hello, <发送者id>!"
-            #ctx.add_return("reply", [f"hello, {ctx.event.sender_id}! The current time is {current_time}."])
-
-            # 阻止该事件默认行为（向接口获取回复）
-            ctx.prevent_default()
-
-    # 当收到群消息时触发
-    @handler(GroupNormalMessageReceived)
-    async def group_normal_message_received(self, ctx: EventContext):
-        msg = ctx.event.text_message  # 这里的 event 即为 GroupNormalMessageReceived 的对象
-        if msg == "hello":  # 如果消息为hello
+        """异步初始化"""
+        try:
+            # 添加每日定时任务
+            self.scheduler.add_job(
+                self.send_daily_notice,
+                'cron',
+                hour=int(NOTIFY_TIME.split(':')[0]),
+                minute=int(NOTIFY_TIME.split(':')[1]),
+                misfire_grace_time=60*5,  # 允许5分钟内的延迟触发
+                max_instances=1
+            )
             
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            # 输出调试信息
-            ctx.add_return("reply", [f"hello, {ctx.event.sender_id}! The current time is {current_time}."])
+            self.scheduler.start()
+            self.ap.logger.info(f"已启动每日{NOTIFY_TIME}定时通知服务")
+        except Exception as e:
+            self.ap.logger.error(f"定时任务启动失败: {str(e)}")
 
-            # 回复消息 "hello, everyone!"
-            ctx.add_return("reply", ["hello, everyone!"])
+    async def send_daily_notice(self):
+        """执行通知操作"""
+        try:
+            current_time = datetime.now(pytz.timezone(TIME_ZONE)).strftime("%Y-%m-%d %H:%M:%S")
+            message = f"⏰ 每日提醒（{current_time}）\n该起床工作啦！💼\n今日也要元气满满哦！✨"
+            
+            # 发送个人消息
+            await self.host.send_person_message(
+                user_id=TARGET_USER,
+                message=message
+            )
+            
+            # 发送群消息
+            await self.host.send_group_message(
+                room_id=TARGET_GROUP,
+                message=message
+            )
+            
+            self.ap.logger.info(f"已发送每日通知到用户[{TARGET_USER}]和群组[{TARGET_GROUP}]")
+            
+        except Exception as e:
+            self.ap.logger.error(f"通知发送失败: {str(e)}")
+            # 可以添加重试逻辑...
 
-            # 阻止该事件默认行为（向接口获取回复）
-            ctx.prevent_default()
-
-    # 插件卸载时触发
     def __del__(self):
-        pass
+        """插件卸载时清理"""
+        if self.scheduler.running:
+            self.scheduler.shutdown()
+            self.ap.logger.info("定时通知服务已关闭")
