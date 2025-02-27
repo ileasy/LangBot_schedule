@@ -20,11 +20,11 @@ class MyPlugin(BasePlugin):
         current_time = datetime.now().strftime("%H:%M")
         msg = ctx.event.text_message  # 这里的 event 即为 PersonNormalMessageReceived 的对象
         #if msg == "hello":  # 如果消息为hello
-        if current_time == "07:32":
+        if current_time == "07:35":
             self.ap.logger.debug("定时通知触发")
             ctx.add_return("reply", [f"早上好！现在是北京时间 {current_time}，该起床啦！🌞"])
             # 获取当前时间并格式化为字符串
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            #current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             # 输出调试信息
             self.ap.logger.debug("hello, {}".format(ctx.event.sender_id))
