@@ -39,7 +39,7 @@ class MyPlugin(BasePlugin):
         if msg == "hello":  # 如果消息为hello
 
             # 输出调试信息
-            self.ap.logger.debug("hello, {}".format(ctx.event.sender_id).current_time)
+            ctx.add_return("reply", [f"hello, {ctx.event.sender_id}! The current time is {current_time}."])
 
             # 回复消息 "hello, everyone!"
             ctx.add_return("reply", ["hello, everyone!"])
