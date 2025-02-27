@@ -7,13 +7,13 @@ import pytz
 # 配置项（TEST_MODE=True时会立即发送测试消息）
 TARGET_USER = "wxid_kif00pjoz5gw22"
 TARGET_GROUP = "26700423460@chatroom"
-NOTIFY_TIME = "10:13"
+NOTIFY_TIME = "10:16"
 TIME_ZONE = "Asia/Shanghai"
 TEST_MODE = True  # 测试模式开关
 
 @register(name="DailyNotifier", 
          description="优化版定时通知插件", 
-         version="2.2",
+         version="2.3",
          author="iLeasy")
 class DailyNotifierPlugin(BasePlugin):
 
@@ -50,9 +50,11 @@ class DailyNotifierPlugin(BasePlugin):
         try:
             self.ap.logger.debug("== 开始执行通知任务 ==")
             
+            # 获取适配器对象
+            adapter = self.host.get_adapter("wx")  # 假设适配器为wx（微信）
+
             # 验证基础发送功能
-            test_res = await self.host.send_active_message(
-                adapter="wx",  # 假设使用微信适配器
+            test_res = await adapter.send_message(
                 target_type="user",  # 发送个人消息
                 target_id=TARGET_USER,  # 目标用户ID
                 message="🏓 服务活跃性检查（收到本条说明定时器正常）"
@@ -64,8 +66,7 @@ class DailyNotifierPlugin(BasePlugin):
             success_count = 0
             
             # 发送个人消息
-            person_res = await self.host.send_active_message(
-                adapter="wx",  # 使用微信适配器
+            person_res = await adapter.send_message(
                 target_type="user",  # 目标是个人消息
                 target_id=TARGET_USER,  # 目标用户ID
                 message=f"⏰ 每日提醒（{current_time}）"
@@ -74,8 +75,7 @@ class DailyNotifierPlugin(BasePlugin):
                 success_count += 1
             
             # 发送群消息
-            group_res = await self.host.send_active_message(
-                adapter="wx",  # 使用微信适配器
+            group_res = await adapter.send_message(
                 target_type="group",  # 目标是群消息
                 target_id=TARGET_GROUP,  # 目标群ID
                 message=f"🗓 群通知（{current_time}）"
