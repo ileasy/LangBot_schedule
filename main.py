@@ -7,13 +7,13 @@ import pytz
 # 配置项（TEST_MODE=True时会立即发送测试消息）
 TARGET_USER = "wxid_kif00pjoz5gw22"
 TARGET_GROUP = "26700423460@chatroom"
-NOTIFY_TIME = "08:10"
+NOTIFY_TIME = "08:02"
 TIME_ZONE = "Asia/Shanghai"
 TEST_MODE = True  # 测试模式开关
 
 @register(name="DailyNotifier", 
          description="优化版定时通知插件", 
-         version="2.0",
+         version="2.1",
          author="iLeasy")
 class DailyNotifierPlugin(BasePlugin):
 
@@ -52,7 +52,7 @@ class DailyNotifierPlugin(BasePlugin):
             
             # 验证基础发送功能
             test_res = await self.host.send_active_message(
-                user_id=TARGET_USER,
+                target_id=TARGET_USER,  # 改为 target_id
                 message="🏓 服务活跃性检查（收到本条说明定时器正常）"
             )
             self.ap.logger.info("基础消息发送状态: {}".format(test_res))
@@ -63,7 +63,7 @@ class DailyNotifierPlugin(BasePlugin):
             
             # 发送个人消息
             person_res = await self.host.send_active_message(
-                user_id=TARGET_USER,
+                target_id=TARGET_USER,  # 改为 target_id
                 message=f"⏰ 每日提醒（{current_time}）"
             )
             if person_res['status'] == 'success':
