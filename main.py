@@ -27,7 +27,7 @@ class MyPlugin(BasePlugin):
             self.ap.logger.debug("hello, {}".format(ctx.event.sender_id))
 
             # 回复消息 "hello, <发送者id>!"
-            ctx.add_return("reply", ["hello, {}!".format(ctx.event.sender_id).current_time])
+            ctx.add_return("reply", [f"hello, {ctx.event.sender_id}! The current time is {current_time}."])
 
             # 阻止该事件默认行为（向接口获取回复）
             ctx.prevent_default()
