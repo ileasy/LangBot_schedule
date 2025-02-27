@@ -7,7 +7,7 @@ import pytz
 # 配置项（TEST_MODE=True时会立即发送测试消息）
 TARGET_USER = "wxid_kif00pjoz5gw22"
 TARGET_GROUP = "26700423460@chatroom"
-NOTIFY_TIME = "08:02"
+NOTIFY_TIME = "10:11"
 TIME_ZONE = "Asia/Shanghai"
 TEST_MODE = True  # 测试模式开关
 
