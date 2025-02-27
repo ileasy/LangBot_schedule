@@ -1,6 +1,6 @@
 from pkg.plugin.context import register, handler, llm_func, BasePlugin, APIHost, EventContext
 from pkg.plugin.events import *  # 导入事件类
-
+import datetime
 
 # 注册插件
 @register(name="Hello", description="hello world", version="0.1", author="RockChinQ")
@@ -17,8 +17,8 @@ class MyPlugin(BasePlugin):
     # 当收到个人消息时触发
     @handler(PersonNormalMessageReceived)
     async def person_normal_message_received(self, ctx: EventContext):
-        msg = ctx.event.text_message  # 这里的 event 即为 PersonNormalMessageReceived 的对象
-        if msg == "hello":  # 如果消息为hello
+        current_time = datetime.datetime.now().time()
+        if current_time.hour == 16 and current_time.minute == 0:  # 如果时间为每天下午16点
 
             # 输出调试信息
             self.ap.logger.debug("hello, {}".format(ctx.event.sender_id))
@@ -32,8 +32,8 @@ class MyPlugin(BasePlugin):
     # 当收到群消息时触发
     @handler(GroupNormalMessageReceived)
     async def group_normal_message_received(self, ctx: EventContext):
-        msg = ctx.event.text_message  # 这里的 event 即为 GroupNormalMessageReceived 的对象
-        if msg == "hello":  # 如果消息为hello
+        current_time = datetime.datetime.now().time()
+        if current_time.hour == 16 and current_time.minute == 0:  # 如果时间为每天下午16点
 
             # 输出调试信息
             self.ap.logger.debug("hello, {}".format(ctx.event.sender_id))
