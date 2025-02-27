@@ -1,6 +1,5 @@
-from pkg.plugin.context import register, handler, BasePlugin, APIHost, EventContext
+from pkg.plugin.context import register, handler, llm_func, BasePlugin, APIHost, EventContext
 from pkg.plugin.events import *  # 导入事件类
-from datetime import datetime  # 导入datetime模块以获取当前时间
 
 
 # 注册插件
@@ -9,7 +8,7 @@ class MyPlugin(BasePlugin):
 
     # 插件加载时触发
     def __init__(self, host: APIHost):
-        self.host = host  # 保存APIHost实例以便后续使用
+        pass
 
     # 异步初始化
     async def initialize(self):
@@ -18,18 +17,17 @@ class MyPlugin(BasePlugin):
     # 当收到个人消息时触发
     @handler(PersonNormalMessageReceived)
     async def person_normal_message_received(self, ctx: EventContext):
-        msg = ctx.event.text_message  # 获取消息内容
-        if msg == "hello":  # 如果消息为 "hello"
+        msg = ctx.event.text_message  # 这里的 event 即为 PersonNormalMessageReceived 的对象
+        if msg == "hello":  # 如果消息为hello
 
             # 获取当前时间并格式化为字符串
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             # 输出调试信息
-            self.host.logger.debug(f"User {ctx.event.sender_id} said hello at {current_time}")
+            self.ap.logger.debug("hello, {}".format(ctx.event.sender_id))
 
-            # 回复消息，包含当前时间
-            reply_message = f"Hello, {ctx.event.sender_id}! The current time is {current_time}."
-            ctx.add_return("reply", [reply_message])
+            # 回复消息 "hello, <发送者id>!"
+            ctx.add_return("reply", ["hello, {}!".format(ctx.event.sender_id).current_time])
 
             # 阻止该事件默认行为（向接口获取回复）
             ctx.prevent_default()
@@ -37,18 +35,14 @@ class MyPlugin(BasePlugin):
     # 当收到群消息时触发
     @handler(GroupNormalMessageReceived)
     async def group_normal_message_received(self, ctx: EventContext):
-        msg = ctx.event.text_message  # 获取消息内容
-        if msg == "hello":  # 如果消息为 "hello"
-
-            # 获取当前时间并格式化为字符串
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        msg = ctx.event.text_message  # 这里的 event 即为 GroupNormalMessageReceived 的对象
+        if msg == "hello":  # 如果消息为hello
 
             # 输出调试信息
-            self.host.logger.debug(f"Group user {ctx.event.sender_id} said hello at {current_time}")
+            self.ap.logger.debug("hello, {}".format(ctx.event.sender_id).current_time)
 
-            # 回复消息，包含当前时间
-            reply_message = f"Hello, everyone! The current time is {current_time}."
-            ctx.add_return("reply", [reply_message])
+            # 回复消息 "hello, everyone!"
+            ctx.add_return("reply", ["hello, everyone!"])
 
             # 阻止该事件默认行为（向接口获取回复）
             ctx.prevent_default()
