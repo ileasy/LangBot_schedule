@@ -31,7 +31,7 @@ class MyPlugin(BasePlugin):
                 self.send_message_to_group(group_id, "请检查每日工作内容是否完成")
 
         # 设置每天下午16点执行job函数
-        schedule.every().day.at("14:35").do(job)
+        schedule.every().day.at("14:55").do(job)
 
         while True:
             schedule.run_pending()
